@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/asalim-ca/tinyapp/issues"
   },
-  "homepage": "https://github.com/asalim-ca/tinyapp#readme"
+  "homepage": "https://github.com/asalim-ca/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
