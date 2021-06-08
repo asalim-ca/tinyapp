@@ -1,3 +1,5 @@
+const { generateRandomString } = require('./dev/randomString')
+
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -40,8 +42,11 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  const longURL = req.body.longURL;
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = longURL;
+  const templateVars = { shortURL, longURL};
+  res.render('urls_show', templateVars);
 });
 
 
