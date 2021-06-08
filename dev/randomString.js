@@ -36,7 +36,5 @@ const generateRandomString = (length = 6) => {
   return !length?  '' : length && (`${oneRandomChar()}${generateRandomString(length-1)}`);
 }
 
-console.log(generateRandomString())
-
 
 module.exports = { generateRandomString }
