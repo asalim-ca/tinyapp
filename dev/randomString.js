@@ -1,4 +1,4 @@
-const UP_CASE = () => {
+const UPPER_CASE = () => {
   const upCaseCode = []
   for (let i = 65; i <= 90; i++) {
     upCaseCode.push(i)
@@ -6,7 +6,7 @@ const UP_CASE = () => {
   return upCaseCode;
 }
 
-const LOW_CASE = () => {
+const LOWER_CASE = () => {
   const lowCaseCode = []
   for (let i = 97; i <= 122; i++) {
     lowCaseCode.push(i)
@@ -14,7 +14,7 @@ const LOW_CASE = () => {
   return lowCaseCode;
 }
 
-const DIG= () => {
+const DIGITS = () => {
   const digCode = []
   for (let i = 48; i <= 57; i++) {
     digCode.push(i)
@@ -22,7 +22,7 @@ const DIG= () => {
   return digCode;
 }
 
-const AN_CODE = UP_CASE().concat(LOW_CASE()).concat(DIG())
+const AN_CODE = UPPER_CASE().concat(LOWER_CASE()).concat(DIGITS())
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
