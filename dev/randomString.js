@@ -8,5 +8,4 @@ const generateRandomChar = () => String.fromCharCode(generateRandomAlphaNumCode(
 
 const generateRandomString = (length = 6) => !length?  '' : length && (`${generateRandomChar()}${generateRandomString(length-1)}`);
 
-
 module.exports = { generateRandomString }
