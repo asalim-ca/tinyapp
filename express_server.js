@@ -67,6 +67,9 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURl)
 });
 
+app.get("/register", (req, res) => {
+  res.render('registrationForm')
+});
 
 app.post("/urls/:shortURL/edit", (req, res) => {
   const shortURL = req.params.shortURL;
