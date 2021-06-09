@@ -37,6 +37,10 @@ app.get("/urls/new", (req, res) => {
 });
 
 
+app.get("/urls/:shortURL/edit", (req, res) => {
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], edit: true};
+  res.render('urls_show', templateVars);
+});
 
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], edit: false};
@@ -48,17 +52,17 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURl)
 });
 
-app.get("/urls/:shortURL/edit", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], edit: true};
-  res.render('urls_show', templateVars);
-});
+
 
 // app.post("/urls/:shortURL/edit", (req, res) => {
 //   const shortURL = req.params.shortURL;
 //   urlDatabase[shortURL] = 
 //   res.redirect('/urls')
 // });
-
+app.post("/urls/:shortURL/edit", (req, res) => {
+  urlDatabase[req.params.shortURL] = req.body.longURL
+  res.redirect('/urls')
+});
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
@@ -79,3 +83,5 @@ app.post("/urls", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
