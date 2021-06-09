@@ -7,7 +7,6 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -43,7 +42,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], edit: false};
   res.render('urls_show', templateVars);
 });
 
@@ -52,27 +51,11 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURl)
 });
 
-<<<<<<< HEAD
-
-
-// app.post("/urls/:shortURL/edit", (req, res) => {
-//   const shortURL = req.params.shortURL;
-//   urlDatabase[shortURL] = 
-//   res.redirect('/urls')
-// });
-app.post("/urls/:shortURL/edit", (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.longURL
-=======
-app.get("/urls/:shortURL/edit", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
-  res.render('urls_show', templateVars);
-});
 
 app.post("/urls/:shortURL/edit", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
->>>>>>> features/cookies
   res.redirect('/urls')
 });
 
@@ -86,11 +69,9 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
-  const templateVars = { shortURL, longURL: urlDatabase[shortURL]};
+  const templateVars = { shortURL, longURL: urlDatabase[shortURL], edit: false};
   res.render('urls_show', templateVars);
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
