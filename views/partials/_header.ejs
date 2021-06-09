@@ -11,12 +11,12 @@
       </div>
     </div>
     <% if (username) { %>
-      <form method="POST" action="/logout" class="d-flex p-2">
-        <input type="text" readonly class="form-control-plaintext" value="Logged In As: <%= username%>!">
+      <form method="POST" action="/logout" class="d-flex">
+        <label class="form-control-plaintext px-2">Logged In As: <%= username%>!</label>
         <input type="submit" value="Logout" class="btn btn-outline-dark">
       </form>
     <% } else { %>
-      <form method="POST" action="/login" class="d-flex p-2">
+      <form method="POST" action="/login" class="d-flex">
         <input type="text" name="username" class="form-control">
         <input type="submit" value="Login" class="btn btn-outline-dark">
       </form>
