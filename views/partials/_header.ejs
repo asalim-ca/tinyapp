@@ -4,23 +4,23 @@
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <% if ( user && user.id ) { %>
+    <div class="collapse navbar-collapse">
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
-        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+          <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <% if ( user && user.id ) { %>
-      <form method="POST" action="/logout" class="d-flex">
-        <label class="form-control-plaintext px-3">Logged In As: <%= user.email %>!</label>
-        <input type="submit" value="Logout" class="btn btn-outline-dark">
-      </form>
+    <form method="POST" action="/logout" class="d-flex">
+      <label class="form-control-plaintext px-3">Logged In As: <%= user.email %>!</label>
+      <input type="submit" value="Logout" class="btn btn-outline-dark">
+    </form>
     <% } else { %>
-      <div class="navbar-nav">
+      <div class="collapse navbar-collapse"></div>
+      <div class="float-right navbar-nav ">
         <a href="/login" class="nav-item nav-link">Login</a>
         <a href="/register" class="nav-item nav-link">Register</a>
       </div>
-  <% } %>
-    
+    <% } %>
   </nav>
 </header>
