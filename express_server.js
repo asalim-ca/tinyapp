@@ -16,8 +16,7 @@ app.use(cookieParser())
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+
 };
 
 
@@ -37,7 +36,7 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const user_id = req.cookies["user_id"]
-  const templateVars = {urls: urlDatabase, user: users[user_id]};
+  const templateVars = {urls: urlDatabase[user_id], user: users[user_id]};
   res.render('urls_index', templateVars);
 });
 
@@ -51,7 +50,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   const user_id = req.cookies["user_id"]
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[user_id][req.params.shortURL],
     edit: true,
     user: users[user_id]
   };
@@ -62,7 +61,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const user_id = req.cookies["user_id"]
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[user_id][req.params.shortURL],
     edit: false,
     user: users[user_id]
   };
@@ -70,7 +69,8 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURl = urlDatabase[req.params.shortURL];
+  const user_id = req.cookies["user_id"]
+  const longURl = urlDatabase[user_id][req.params.shortURL];
   res.redirect(longURl)
 });
 
@@ -83,15 +83,17 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
+  const user_id = req.cookies["user_id"]
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[user_id][shortURL] = longURL;
   res.redirect('/urls')
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const user_id = req.cookies["user_id"]
   const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
+  delete urlDatabase[user_id][shortURL];
   res.redirect('/urls')
 });
 
@@ -100,10 +102,10 @@ app.post("/urls", (req, res) => {
 
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[user_id] = { shortURL:longURL };
   const templateVars = {
     shortURL,
-    longURL: urlDatabase[shortURL],
+    longURL: urlDatabase[user_id][shortURL],
     edit: false,
     user: users[user_id]
   };
