@@ -16,9 +16,9 @@
         <input type="submit" value="Logout" class="btn btn-outline-dark">
       </form>
     <% } else { %>
-      <form method="POST" action="/login" class="d-flex">
-        <input type="text" name="username" placeholder="username" class="form-control">
-        <input type="submit" value="Login" class="btn btn-outline-dark">
+      <form method="GET" action="/login" class="d-flex">
+        <a href="/register" class="nav-item nav-link text-warning">Register</a>
+        <button type="submit" class="btn btn-dark mb-2">Login</button>
       </form>
   <% } %>
     

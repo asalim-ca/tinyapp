@@ -78,6 +78,10 @@ app.get("/register", (req, res) => {
   res.render('registrationForm')
 });
 
+app.get("/login", (req, res) => {
+  res.render('login_form')
+});
+
 app.post("/urls/:shortURL/edit", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
@@ -107,7 +111,6 @@ app.post("/urls", (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  res.cookie('user_id', req.body.id)
   res.redirect('/urls')
 });
 
