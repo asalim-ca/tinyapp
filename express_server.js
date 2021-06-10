@@ -12,6 +12,9 @@ cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
 
+const bcrypt = require('bcrypt');
+
+
 
 app.set("view engine", "ejs");
 
@@ -138,8 +141,7 @@ app.post('/login', (req, res) => {
   const emailExists = Object.keys(users).some( user => users[user].email === email);
   const indexUser = Object.keys(users).findIndex( user => users[user].email === email);
   const id = emailExists && Object.keys(users)[indexUser];
-
-  if (!emailExists || users[id].password !== password) {
+  if (!emailExists || !bcrypt.compareSync(password, users[id].password)) {
     res.status(403).send('Something went wrong!')
   } else {
     res.cookie('user_id', id);
@@ -154,7 +156,7 @@ app.post('/logout', (req, res) => {
 
 app.post("/register", (req, res) => {
   const email = req.body.email;
-  const password = req.body.password;
+  const password = bcrypt.hashSync(req.body.password, 10);
   if (!password || !email || Object.keys(users).some( user => users[user].email === email)) {
     res.status(400).send('Something went wrong!')
   } else {
