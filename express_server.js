@@ -8,8 +8,14 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
 
-cookieParser = require('cookie-parser')
-app.use(cookieParser())
+const cookieSession = require('cookie-session')
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2'],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
 
 
 const bcrypt = require('bcrypt');
@@ -39,7 +45,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const user_id = req.cookies["user_id"]
+  const user_id = req.session.user_id
   const templateVars = {urls: urlDatabase, user: users[user_id]};
   !user_id? res.redirect('/login') : res.render('urls_index', templateVars);
 });
@@ -50,7 +56,7 @@ app.get("/urls/new", (req, res) => {
 
 
 app.get("/urls/:shortURL/edit", (req, res) => {
-  const user_id = req.cookies["user_id"]
+  const user_id = req.session.user_id
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
@@ -61,7 +67,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const user_id = req.cookies["user_id"]
+  const user_id = req.session.user_id
   if (!user_id) {
     res.redirect('/login') 
   }
@@ -113,7 +119,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const user_id = req.cookies["user_id"]
+  const user_id = req.session.user_id
 
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
@@ -144,13 +150,14 @@ app.post('/login', (req, res) => {
   if (!emailExists || !bcrypt.compareSync(password, users[id].password)) {
     res.status(403).send('Something went wrong!')
   } else {
-    res.cookie('user_id', id);
+    req.session.user_id = id;
+    // res.cookie('user_id', id);
     res.redirect('/urls');
   }
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id')
+  req.session = null;
   res.redirect('/urls')
 });
 
@@ -162,12 +169,13 @@ app.post("/register", (req, res) => {
   } else {
     const id = generateRandomString();
     users[id] = { id, email, password }
-    res.cookie('user_id', id);
+    req.session.user_id = id;
+    // res.cookie('user_id', id);
     res.redirect('/urls');
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });
 
