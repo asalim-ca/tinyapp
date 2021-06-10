@@ -40,7 +40,7 @@ app.get("/urls", (req, res) => {
   const templateVars = {urls: urlDatabase, user: users[user_id]};
   console.log(users)
   console.log(urlDatabase)
-  res.render('urls_index', templateVars);
+  !user_id? res.redirect('/login') : res.render('urls_index', templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
@@ -52,7 +52,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   const user_id = req.cookies["user_id"]
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     edit: true,
     user: users[user_id]
   };
@@ -61,18 +61,35 @@ app.get("/urls/:shortURL/edit", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const user_id = req.cookies["user_id"]
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
-    edit: false,
-    user: users[user_id]
-  };
-  res.render('urls_show', templateVars);
+  if (!user_id) {
+    res.redirect('/login') 
+  }
+
+  const userDB = {}
+  Object.keys(urlDatabase).filter(tinyUrl => urlDatabase[tinyUrl].userID === user_id).forEach(tinyUrl => {
+      const longURL = urlDatabase[tinyUrl].userID;
+      userDB[tinyUrl] = { longURL, user_id }
+    })
+  const shortURL = req.params.shortURL;
+  console.log(userDB);
+  if (Object.keys(userDB).some(tinyUrl => tinyUrl === shortURL))
+  {
+    console.log(userDB)
+    const templateVars = {
+      urls: userDB,
+      shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      edit: false,
+      user: users[user_id]
+    };
+    res.render('urls_show', templateVars);
+  }
+  else res.status(403).send('Forbidden')
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURl = urlDatabase[req.params.shortURL];
-  res.redirect(longURl)
+  const url = urlDatabase[req.params.shortURL].longURL;
+  res.redirect(url)
 });
 
 app.get("/register", (req, res) => {
@@ -86,7 +103,7 @@ app.get("/login", (req, res) => {
 app.post("/urls/:shortURL/edit", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL].longURL = longURL;
   res.redirect('/urls')
 });
 
@@ -110,7 +127,7 @@ app.post("/urls", (req, res) => {
 
   const templateVars = {
     shortURL,
-    longURL: urlDatabase[shortURL],
+    longURL: urlDatabase[shortURL].longURL,
     edit: false,
     user: users[user_id]
   };
