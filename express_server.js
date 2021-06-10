@@ -1,5 +1,5 @@
-const { generateRandomString } = require('./helpers/generateRandomString')
-const { getUserByEmail } = require('./helpers/getUserByEmail')
+const { generateRandomString } = require('./dev/generateRandomString')
+const { getUserByEmail } = require('./helpers')
 
 const express = require("express");
 const app = express();
