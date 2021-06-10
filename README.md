@@ -23,4 +23,4 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## About - TypeError: Cannot read property 'longURL' of undefined -
 
-- This is a runtime error and it will depend on the long URL provided by user, What I understand `res.redirect(someUrl)` will only redirect if `someUrl` is in a complete format  http://someDomin.wte or http://www.someDomin.wte, a `someIncompleteUrl` will definitely return the error discussed. for later versions I'll try to implement an `urlVerfication()` to check urls before adding them or editing them.
+- This is a runtime error and depends on user's input, what I understand is `res.redirect(someUrl)` only redirects when `someUrl` verifies  a complete format with http://... or https://..., "www.somedomain.wte" or "somedomain.wte"will definitely return the error mentioned. For futur refactoring I'll try to implement an `urlVerfication()` to check urls before adding them or editing them.
