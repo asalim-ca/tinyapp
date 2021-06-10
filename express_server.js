@@ -111,7 +111,20 @@ app.post("/urls", (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  res.redirect('/urls')
+  const email = req.body.email;
+  const password = req.body.password;
+  
+  //This is just to finish the work, need refactoring implementing a proper function
+  const emailExists = Object.keys(users).some( user => users[user].email === email);
+  const indexUser = Object.keys(users).findIndex( user => users[user].email === email);
+  const id = emailExists && Object.keys(users)[indexUser];
+
+  if (!emailExists || users[id].password !== password) {
+    res.status(403).send('Something went wrong!')
+  } else {
+    res.cookie('user_id', id);
+    res.redirect('/urls');
+  }
 });
 
 app.post('/logout', (req, res) => {
