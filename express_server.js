@@ -38,8 +38,6 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   const user_id = req.cookies["user_id"]
   const templateVars = {urls: urlDatabase, user: users[user_id]};
-  console.log(users)
-  console.log(urlDatabase)
   !user_id? res.redirect('/login') : res.render('urls_index', templateVars);
 });
 
@@ -71,10 +69,8 @@ app.get("/urls/:shortURL", (req, res) => {
       userDB[tinyUrl] = { longURL, user_id }
     })
   const shortURL = req.params.shortURL;
-  console.log(userDB);
   if (Object.keys(userDB).some(tinyUrl => tinyUrl === shortURL))
   {
-    console.log(userDB)
     const templateVars = {
       urls: userDB,
       shortURL,
