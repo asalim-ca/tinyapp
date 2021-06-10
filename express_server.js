@@ -34,15 +34,8 @@ const urlDatabase = {
 const users = {}
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+  const user_id = req.session.user_id
+  !user_id? res.render('home', {user: {}}) : res.render('urls_index', {urls: urlDatabase, user: users[user_id]});
 });
 
 app.get("/urls", (req, res) => {
@@ -99,11 +92,13 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render('regist_form', {user: {}})
+  const user_id = req.session.user_id
+  !user_id? res.render('regist_form', {user: {}}) : res.redirect('/');
 });
 
 app.get("/login", (req, res) => {
-  res.render('login_form', {user: {} })
+  const user_id = req.session.user_id
+  !user_id? res.render('login_form', {user: {}}) : res.redirect('/');
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
@@ -144,15 +139,11 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   
-  //This is just to finish the work, need refactoring implementing a proper function
-  const emailExists = getUserByEmail(email, users);
-  const indexUser = Object.keys(users).findIndex( user => users[user].email === email);
-  const id = emailExists && Object.keys(users)[indexUser];
-  if (!emailExists || !bcrypt.compareSync(password, users[id].password)) {
+  const user = getUserByEmail(email, users);
+  if (!user || !bcrypt.compareSync(password, users[user.id].password)) {
     res.status(403).send('Something went wrong!')
   } else {
-    req.session.user_id = id;
-    // res.cookie('user_id', id);
+    req.session.user_id = user.id;
     res.redirect('/urls');
   }
 });
@@ -171,11 +162,9 @@ app.post("/register", (req, res) => {
     const id = generateRandomString();
     users[id] = { id, email, password }
     req.session.user_id = id;
-    // res.cookie('user_id', id);
     res.redirect('/urls');
   }
 });
-
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
