@@ -39,7 +39,6 @@ app.get("/urls", (req, res) => {
   const user_id = req.cookies["user_id"]
   const templateVars = {urls: urlDatabase, user: users[user_id]};
   res.render('urls_index', templateVars);
-  console.log(users)
 });
 
 app.get("/urls/new", (req, res) => {
@@ -75,11 +74,11 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render('registrationForm')
+  res.render('regist_form', {user: {}})
 });
 
 app.get("/login", (req, res) => {
-  res.render('login_form')
+  res.render('login_form', {user: {} })
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {

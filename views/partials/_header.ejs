@@ -12,14 +12,14 @@
     </div>
     <% if ( user && user.id ) { %>
       <form method="POST" action="/logout" class="d-flex">
-        <label class="form-control-plaintext px-2">Logged In As: <%= user.email %></label>
+        <label class="form-control-plaintext px-3">Logged In As: <%= user.email %>!</label>
         <input type="submit" value="Logout" class="btn btn-outline-dark">
       </form>
     <% } else { %>
-      <form method="GET" action="/login" class="d-flex">
-        <a href="/register" class="nav-item nav-link text-warning">Register</a>
-        <button type="submit" class="btn btn-dark mb-2">Login</button>
-      </form>
+      <div class="navbar-nav">
+        <a href="/login" class="nav-item nav-link">Login</a>
+        <a href="/register" class="nav-item nav-link">Register</a>
+      </div>
   <% } %>
     
   </nav>
