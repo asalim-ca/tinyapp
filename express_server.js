@@ -1,6 +1,9 @@
-const { generateRandomString } = require('./dev/generateRandomString')
-const { getUserByEmail } = require('./helpers')
+/**Helpers */
+const { generateRandomString } = require('./dev/generateRandomString');
+const { getUserByEmail, getUserDatabase, userHasUrl} = require('./helpers');
 
+
+/**Server Setup */
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -8,163 +11,164 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
-  keys: ['key1', 'key2'],
-
-  // Cookie Options
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
-}))
-
+  keys: ['key1', 'key2']
+}));
 
 const bcrypt = require('bcrypt');
 
-
-
 app.set("view engine", "ejs");
 
-const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
-};
+/**Databases */
 
+const urlDatabase = {};
+const users = {};
 
-const users = {}
+/**GET */
+
 
 app.get("/", (req, res) => {
-  const user_id = req.session.user_id
-  !user_id? res.render('home', {user: {}}) : res.render('urls_index', {urls: urlDatabase, user: users[user_id]});
+  const userId = req.session.userId;
+  userId ? res.redirect('/urls') : res.render('home', {user: {}});
 });
 
 app.get("/urls", (req, res) => {
-  const user_id = req.session.user_id
-  const templateVars = {urls: urlDatabase, user: users[user_id]};
-  !user_id? res.redirect('/login') : res.render('urls_index', templateVars);
+  const userId = req.session.userId;
+  userId ? res.render('urls_index', {urls: urlDatabase, user: users[userId]}) : res.redirect('/login');
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const userId = req.session.userId;
+  userId ? res.render('urls_new') : res.redirect('/');
 });
 
 
 app.get("/urls/:shortURL/edit", (req, res) => {
-  const user_id = req.session.user_id
+  const userId = req.session.userId;
   const templateVars = {
+    edit: true,
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
-    edit: true,
-    user: users[user_id]
+    user: users[userId]
   };
   res.render('urls_show', templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const user_id = req.session.user_id
-  if (!user_id) {
-    res.redirect('/login') 
+  const userId = req.session.userId;
+  if (!userId) {
+    res.redirect('/login');
   }
 
-  const userDB = {}
-  Object.keys(urlDatabase).filter(tinyUrl => urlDatabase[tinyUrl].userID === user_id).forEach(tinyUrl => {
-      const longURL = urlDatabase[tinyUrl].userID;
-      userDB[tinyUrl] = { longURL, user_id }
-    })
+  const userDB = getUserDatabase(userId, urlDatabase);
+
   const shortURL = req.params.shortURL;
-  if (Object.keys(userDB).some(tinyUrl => tinyUrl === shortURL))
-  {
+  if (userHasUrl(userDB, shortURL)) {
     const templateVars = {
-      urls: userDB,
       shortURL,
-      longURL: urlDatabase[req.params.shortURL].longURL,
       edit: false,
-      user: users[user_id]
+      urls: userDB,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      user: users[userId]
     };
     res.render('urls_show', templateVars);
+  } else {
+    res.status(403).send('Forbidden');
   }
-  else res.status(403).send('Forbidden')
 });
 
 app.get("/u/:shortURL", (req, res) => {
   const url = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(url)
+  res.redirect(url);
 });
 
 app.get("/register", (req, res) => {
-  const user_id = req.session.user_id
-  !user_id? res.render('regist_form', {user: {}}) : res.redirect('/');
+  const userId = req.session.userId;
+  userId ? res.redirect('/') : res.render('regist_form', {user: {}});
 });
 
 app.get("/login", (req, res) => {
-  const user_id = req.session.user_id
-  !user_id? res.render('login_form', {user: {}}) : res.redirect('/');
+  const userId = req.session.userId;
+  userId ? res.redirect('/') : res.render('login_form', {user: {}});
 });
+
+/**POST */
 
 app.post("/urls/:shortURL/edit", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
   urlDatabase[shortURL].longURL = longURL;
-  res.redirect('/urls')
+  res.redirect('/urls');
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
-  res.redirect('/urls')
+  res.redirect('/urls');
 });
 
 app.post("/urls", (req, res) => {
-  const user_id = req.session.user_id
+  const userId = req.session.userId;
 
+  //Need to use some classes in here! probably a Url Class
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
-
-  if(!urlDatabase[shortURL]) urlDatabase[shortURL] = { longURL, userID:user_id}
-  else{
+  if (!urlDatabase[shortURL]) urlDatabase[shortURL] = { longURL, userID:userId};
+  else {
     urlDatabase[shortURL].longURL = longURL;
-    urlDatabase[shortURL].userID = user_id;
+    urlDatabase[shortURL].userID = userId;
   }
 
   const templateVars = {
     shortURL,
-    longURL: urlDatabase[shortURL].longURL,
     edit: false,
-    user: users[user_id]
+    longURL: urlDatabase[shortURL].longURL,
+    user: users[userId]
   };
   res.render('urls_show', templateVars);
 });
 
 app.post('/login', (req, res) => {
+  
+  //Here will go better with a User Class
   const email = req.body.email;
   const password = req.body.password;
-  
   const user = getUserByEmail(email, users);
+
+  //Could have modularized in here a little bit as User class methods
   if (!user || !bcrypt.compareSync(password, users[user.id].password)) {
-    res.status(403).send('Something went wrong!')
+    res.status(403).send('Something went wrong!');
   } else {
-    req.session.user_id = user.id;
+    req.session.userId = user.id;
     res.redirect('/urls');
   }
 });
 
 app.post('/logout', (req, res) => {
   req.session = null;
-  res.redirect('/urls')
+  res.redirect('/urls');
 });
 
 app.post("/register", (req, res) => {
+  
+  //Again, Should have implemented a User Class + methods for encryption
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
   if (!password || !email || getUserByEmail(email, users)) {
-    res.status(400).send('Something went wrong!')
+    res.status(400).send('Something went wrong!');
   } else {
     const id = generateRandomString();
-    users[id] = { id, email, password }
-    req.session.user_id = id;
+    users[id] = { id, email, password };
+    req.session.userId = id;
     res.redirect('/urls');
   }
 });
+
+//***********************************************************/
+
+
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
 });
