@@ -1,4 +1,5 @@
-const { generateRandomString } = require('./dev/randomString')
+const { generateRandomString } = require('./helpers/generateRandomString')
+const { getUserByEmail } = require('./helpers/getUserByEmail')
 
 const express = require("express");
 const app = express();
@@ -144,7 +145,7 @@ app.post('/login', (req, res) => {
   const password = req.body.password;
   
   //This is just to finish the work, need refactoring implementing a proper function
-  const emailExists = Object.keys(users).some( user => users[user].email === email);
+  const emailExists = getUserByEmail(email, users);
   const indexUser = Object.keys(users).findIndex( user => users[user].email === email);
   const id = emailExists && Object.keys(users)[indexUser];
   if (!emailExists || !bcrypt.compareSync(password, users[id].password)) {
@@ -164,7 +165,7 @@ app.post('/logout', (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
-  if (!password || !email || Object.keys(users).some( user => users[user].email === email)) {
+  if (!password || !email || getUserByEmail(email, users)) {
     res.status(400).send('Something went wrong!')
   } else {
     const id = generateRandomString();

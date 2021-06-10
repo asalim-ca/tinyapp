@@ -1,4 +1,4 @@
-const { ALPHANUMERIC_CODES } = require('./alphaNumCharCodes')
+const { ALPHANUMERIC_CODES } = require('./bin/alphaNumCharCodes')
 
 const generateRandomKey = (max) => Math.floor(Math.random() * max);
 
