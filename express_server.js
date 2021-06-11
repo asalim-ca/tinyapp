@@ -59,7 +59,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
     };
     res.render('urls_show', templateVars);
   } else {
-    res.status(403).send('Forbidden');
+    res.status(403).send('Access denied - Error 403');
   }
 });
 
@@ -81,7 +81,7 @@ app.get("/urls/:shortURL", (req, res) => {
     };
     res.render('urls_show', templateVars);
   } else {
-    res.status(403).send('Forbidden');
+    res.status(403).send('Access denied - Error 403');
   }
 });
 
@@ -103,6 +103,10 @@ app.get("/login", (req, res) => {
 /**POST */
 
 app.post("/urls/:shortURL/edit", (req, res) => {
+  const userId = req.session.userId;
+  if (!userId) {
+    res.redirect('/login');
+  }
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
   urlDatabase[shortURL].longURL = longURL;
@@ -110,6 +114,10 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const userId = req.session.userId;
+  if (!userId) {
+    res.redirect('/login');
+  }
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
   res.redirect('/urls');
