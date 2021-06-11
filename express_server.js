@@ -30,7 +30,7 @@ const users = {};
 
 app.get("/", (req, res) => {
   const userId = req.session.userId;
-  userId ? res.redirect('/urls') : res.render('home', {user: {}});
+  userId ? res.redirect('/urls') : res.redirect('/login');
 });
 
 app.get("/urls", (req, res) => {
@@ -92,12 +92,12 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.get("/register", (req, res) => {
   const userId = req.session.userId;
-  userId ? res.redirect('/') : res.render('regist_form', {user: {}});
+  userId ? res.redirect('/urls') : res.render('regist_form', {user: {}});
 });
 
 app.get("/login", (req, res) => {
   const userId = req.session.userId;
-  userId ? res.redirect('/') : res.render('login_form', {user: {}});
+  userId ? res.redirect('/urls') : res.render('login_form', {user: {}});
 });
 
 /**POST */
@@ -148,12 +148,10 @@ app.post('/login', (req, res) => {
   const user = getUserByEmail(email, users);
 
   //Could have modularized in here a little bit as User class methods
-  if (!user || !bcrypt.compareSync(password, users[user.id].password)) {
-    res.status(403).send('Access denied - Error 403');
-  } else {
-    req.session.userId = user.id;
-    res.redirect('/urls');
-  }
+  if (!user || !bcrypt.compareSync(password, users[user.id].password)) res.status(403).send('Access denied - Error 403');
+
+  req.session.userId = user.id;
+  res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
@@ -166,14 +164,16 @@ app.post("/register", (req, res) => {
   //Again, Should have implemented a User Class + methods for encryption
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
-  if (!password || !email || getUserByEmail(email, users)) {
-    res.status(400).send('Bad request - Error 400');
-  } else {
-    const id = generateRandomString();
-    users[id] = { id, email, password };
-    req.session.userId = id;
-    res.redirect('/urls');
-  }
+
+  if (!email) res.status(400).send(`No email provided!`);
+  if (!password) res.status(400).send(`No password provided!`);
+  if (getUserByEmail(email, users)) res.status(400).send(`email provided already exists!`);
+
+  const id = generateRandomString();
+  users[id] = { id, email, password };
+  req.session.userId = id;
+  res.redirect('/urls');
+
 });
 
 //***********************************************************/
