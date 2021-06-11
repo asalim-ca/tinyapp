@@ -47,13 +47,22 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL/edit", (req, res) => {
   const userId = req.session.userId;
-  const templateVars = {
-    edit: true,
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user: users[userId]
-  };
-  res.render('urls_show', templateVars);
+  if (!userId) {
+    res.redirect('/login');
+  }
+  const userDB = getUserDatabase(userId, urlDatabase);
+  const shortURL = req.params.shortURL;
+  if (userHasUrl(userDB, shortURL)) {
+    const templateVars = {
+      shortURL,
+      edit: true,
+      longURL: urlDatabase[shortURL].longURL,
+      user: users[userId]
+    };
+    res.render('urls_show', templateVars);
+  } else {
+    res.status(403).send('Forbidden');
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -70,7 +79,7 @@ app.get("/urls/:shortURL", (req, res) => {
       shortURL,
       edit: false,
       urls: userDB,
-      longURL: urlDatabase[req.params.shortURL].longURL,
+      longURL: urlDatabase[shortURL].longURL,
       user: users[userId]
     };
     res.render('urls_show', templateVars);
