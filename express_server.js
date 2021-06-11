@@ -67,8 +67,8 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const url = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(url);
+  const url = urlDatabase[req.params.shortURL];
+  url ? res.redirect(url.longURL) : res.status(404).send('Not found - Error 404');
 });
 
 app.get("/urls/:shortURL/edit", (req, res) => {
