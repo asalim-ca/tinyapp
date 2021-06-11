@@ -1,6 +1,5 @@
 /**Helpers */
-const { generateRandomString } = require('./dev/generateRandomString');
-const { getUserByEmail, getUserDatabase, userHasUrl} = require('./helpers');
+const { getUserByEmail, getUserDatabase, userHasUrl, generateRandomString} = require('./helpers');
 
 
 /**Server Setup */
