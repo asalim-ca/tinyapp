@@ -30,4 +30,4 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## dev folder
 
-- I've created this folder in the beggining of the project to carry `generateRandomString`, after that with the implementation of `helpers.js` I tought about passing `generateRandomString` to it but it would not make this more readable so for now it stays! probably it will disapear in future refactorings.
+- I've created this folder in the beggining of the project to carry `generateRandomString`, after that with the implementation of `helpers.js` I tought about passing `generateRandomString` to it but it would not make this more readable so for now it stays! probably it will disapear in future refactorings. (Gone!)
