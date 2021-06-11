@@ -43,26 +43,6 @@ app.get("/urls/new", (req, res) => {
   userId ? res.render('urls_new') : res.redirect('/');
 });
 
-
-app.get("/urls/:shortURL/edit", (req, res) => {
-  const userId = req.session.userId;
-  if (!userId) {
-    res.redirect('/login');
-  }
-  const userDB = getUserDatabase(userId, urlDatabase);
-  const shortURL = req.params.shortURL;
-  if (userHasUrl(userDB, shortURL)) {
-    const templateVars = {
-      shortURL,
-      longURL: urlDatabase[shortURL].longURL,
-      user: users[userId]
-    };
-    res.render('urls_show', templateVars);
-  } else {
-    res.status(403).send('Access denied - Error 403');
-  }
-});
-
 app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.userId;
   if (!userId) {
@@ -80,14 +60,35 @@ app.get("/urls/:shortURL", (req, res) => {
       user: users[userId]
     };
     res.render('urls_show', templateVars);
-  } else {
+  } else if (urlDatabase[shortURL]) {
     res.status(403).send('Access denied - Error 403');
   }
+  res.status(404).send('Not found - Error 404');
 });
 
 app.get("/u/:shortURL", (req, res) => {
   const url = urlDatabase[req.params.shortURL].longURL;
   res.redirect(url);
+});
+
+app.get("/urls/:shortURL/edit", (req, res) => {
+  const userId = req.session.userId;
+  if (!userId) {
+    res.redirect('/login');
+  }
+  const userDB = getUserDatabase(userId, urlDatabase);
+  const shortURL = req.params.shortURL;
+  if (userHasUrl(userDB, shortURL)) {
+    const templateVars = {
+      shortURL,
+      longURL: urlDatabase[shortURL].longURL,
+      user: users[userId]
+    };
+    res.render('urls_show', templateVars);
+  } else if (urlDatabase[shortURL]) {
+    res.status(403).send('Access denied - Error 403');
+  }
+  res.status(404).send('Not found - Error 404');
 });
 
 app.get("/register", (req, res) => {
