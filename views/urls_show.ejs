@@ -15,16 +15,14 @@
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       </div>
   <div class="card-footer text-muted">
-    <% if (edit) { %>
-      <div class="card-body">
-        <H2>Edit</H2>
-        <form method="POST" action="">
-          New URL: 
-          <input type="text" placeholder="http://" name="longURL" style="width: 300px; margin: 1em">
-          <input type="submit" value="Submit" class="btn btn-primary">
-        </form>
-      </div> 
-    <% } %>
+    <div class="card-body">
+      <H2>Edit</H2>
+      <form method="POST" action="">
+        New URL: 
+        <input type="text" placeholder="http://" name="longURL" style="width: 300px; margin: 1em">
+        <input type="submit" value="Submit" class="btn btn-primary">
+      </form>
+    </div> 
   </div>
   </div>
   <!-- Bootstrap JS -->

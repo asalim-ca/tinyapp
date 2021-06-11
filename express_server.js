@@ -54,7 +54,6 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   if (userHasUrl(userDB, shortURL)) {
     const templateVars = {
       shortURL,
-      edit: true,
       longURL: urlDatabase[shortURL].longURL,
       user: users[userId]
     };
@@ -76,7 +75,6 @@ app.get("/urls/:shortURL", (req, res) => {
   if (userHasUrl(userDB, shortURL)) {
     const templateVars = {
       shortURL,
-      edit: false,
       urls: userDB,
       longURL: urlDatabase[shortURL].longURL,
       user: users[userId]
@@ -119,6 +117,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const userId = req.session.userId;
+  if (!userId) {
+    res.redirect('/login');
+  }
 
   //Need to use some classes in here! probably a Url Class
   const shortURL = generateRandomString();
@@ -128,14 +129,7 @@ app.post("/urls", (req, res) => {
     urlDatabase[shortURL].longURL = longURL;
     urlDatabase[shortURL].userID = userId;
   }
-
-  const templateVars = {
-    shortURL,
-    edit: false,
-    longURL: urlDatabase[shortURL].longURL,
-    user: users[userId]
-  };
-  res.render('urls_show', templateVars);
+  res.redirect(`/urls/${shortURL}`);
 });
 
 app.post('/login', (req, res) => {
