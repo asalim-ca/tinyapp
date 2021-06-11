@@ -149,7 +149,7 @@ app.post('/login', (req, res) => {
 
   //Could have modularized in here a little bit as User class methods
   if (!user || !bcrypt.compareSync(password, users[user.id].password)) {
-    res.status(403).send('Something went wrong!');
+    res.status(403).send('Access denied - Error 403');
   } else {
     req.session.userId = user.id;
     res.redirect('/urls');
@@ -167,7 +167,7 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
   if (!password || !email || getUserByEmail(email, users)) {
-    res.status(400).send('Something went wrong!');
+    res.status(400).send('Bad request - Error 400');
   } else {
     const id = generateRandomString();
     users[id] = { id, email, password };
