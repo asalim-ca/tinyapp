@@ -40,30 +40,32 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const userId = req.session.userId;
-  userId ? res.render('urls_new') : res.redirect('/');
+  userId ? res.render('urls_new', {user: users[userId]}) : res.redirect('/');
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const userId = req.session.userId;
   if (!userId) {
-    res.redirect('/login');
-  }
+    res.status(403).send('You must be logged in to view URLs!');
+  } else {
 
-  const userDB = getUserDatabase(userId, urlDatabase);
+    const userDB = getUserDatabase(userId, urlDatabase);
 
-  const shortURL = req.params.shortURL;
-  if (userHasUrl(userDB, shortURL)) {
-    const templateVars = {
-      shortURL,
-      urls: userDB,
-      longURL: urlDatabase[shortURL].longURL,
-      user: users[userId]
-    };
-    res.render('urls_show', templateVars);
-  } else if (urlDatabase[shortURL]) {
-    res.status(403).send('Access denied - Error 403');
+    const shortURL = req.params.shortURL;
+    if (userHasUrl(userDB, shortURL)) {
+      const templateVars = {
+        shortURL,
+        urls: userDB,
+        longURL: urlDatabase[shortURL].longURL,
+        user: users[userId],
+      };
+      res.render('urls_show', templateVars);
+    } else if (urlDatabase[shortURL]) {
+      res.status(403).send("You can't access URLs that don't belong to you!");
+    } else {
+      res.status(404).send('Not found - Error 404');
+    }
   }
-  res.status(404).send('Not found - Error 404');
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -71,25 +73,6 @@ app.get("/u/:shortURL", (req, res) => {
   url ? res.redirect(url.longURL) : res.status(404).send('Not found - Error 404');
 });
 
-app.get("/urls/:shortURL/edit", (req, res) => {
-  const userId = req.session.userId;
-  if (!userId) {
-    res.redirect('/login');
-  }
-  const userDB = getUserDatabase(userId, urlDatabase);
-  const shortURL = req.params.shortURL;
-  if (userHasUrl(userDB, shortURL)) {
-    const templateVars = {
-      shortURL,
-      longURL: urlDatabase[shortURL].longURL,
-      user: users[userId]
-    };
-    res.render('urls_show', templateVars);
-  } else if (urlDatabase[shortURL]) {
-    res.status(403).send('Access denied - Error 403');
-  }
-  res.status(404).send('Not found - Error 404');
-});
 
 app.get("/register", (req, res) => {
   const userId = req.session.userId;
@@ -107,38 +90,41 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   const userId = req.session.userId;
   if (!userId) {
     res.redirect('/login');
+  } else {
+    const shortURL = req.params.shortURL;
+    const longURL = req.body.longURL;
+    urlDatabase[shortURL].longURL = longURL;
+    res.redirect('/urls');
   }
-  const shortURL = req.params.shortURL;
-  const longURL = req.body.longURL;
-  urlDatabase[shortURL].longURL = longURL;
-  res.redirect('/urls');
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userId = req.session.userId;
   if (!userId) {
     res.redirect('/login');
+  } else {
+    const shortURL = req.params.shortURL;
+    delete urlDatabase[shortURL];
+    res.redirect('/urls');
   }
-  const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
-  res.redirect('/urls');
 });
 
 app.post("/urls", (req, res) => {
   const userId = req.session.userId;
   if (!userId) {
     res.redirect('/login');
+  } else {
+    //Need to use some classes in here! probably a Url Class
+    const shortURL = generateRandomString();
+    const longURL = req.body.longURL;
+    if (!urlDatabase[shortURL]) urlDatabase[shortURL] = { longURL, userID:userId};
+    else {
+      urlDatabase[shortURL].longURL = longURL;
+      urlDatabase[shortURL].userID = userId;
+      console.log(urlDatabase);
+    }
+    res.redirect(`/urls/${shortURL}`);
   }
-
-  //Need to use some classes in here! probably a Url Class
-  const shortURL = generateRandomString();
-  const longURL = req.body.longURL;
-  if (!urlDatabase[shortURL]) urlDatabase[shortURL] = { longURL, userID:userId};
-  else {
-    urlDatabase[shortURL].longURL = longURL;
-    urlDatabase[shortURL].userID = userId;
-  }
-  res.redirect(`/urls/${shortURL}`);
 });
 
 app.post('/login', (req, res) => {
@@ -149,10 +135,16 @@ app.post('/login', (req, res) => {
   const user = getUserByEmail(email, users);
 
   //Could have modularized in here a little bit as User class methods
-  if (!user || !bcrypt.compareSync(password, users[user.id].password)) res.status(403).send('Access denied - Error 403');
-
-  req.session.userId = user.id;
-  res.redirect('/urls');
+  if (!user) {
+    res.status(403).send('User does not exist: Please verify your email address or register first!');
+  } else {
+    if (!bcrypt.compareSync(password, users[user.id].password)) {
+      res.status(403).send('Wrong Password!');
+    } else {
+      req.session.userId = user.id;
+      res.redirect('/urls');
+    }
+  }
 });
 
 app.post('/logout', (req, res) => {

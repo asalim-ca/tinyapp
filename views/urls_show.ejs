@@ -14,15 +14,16 @@
         <h5 class="card-title">TinyURL for: <%= longURL %></h5>
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       </div>
-  <div class="card-footer text-muted">
-    <div class="card-body">
-      <H2>Edit</H2>
-      <form method="POST" action="/urls/<%= shortURL %>/edit">
-        New URL: 
-        <input type="text" placeholder="http://" name="longURL" style="width: 300px; margin: 1em">
-        <input type="submit" value="Submit" class="btn btn-primary">
-      </form>
-    </div> 
+      <!-- Need to figure out how to show it just when coming from edit buton -->
+      <div class="card-footer text-muted">
+        <div class="card-body">
+          <H2>Edit</H2>
+          <form method="POST" action="/urls/<%= shortURL %>/edit">
+            New URL: 
+            <input type="text" placeholder="http://" name="longURL" style="width: 300px; margin: 1em">
+            <input type="submit" value="Submit" class="btn btn-primary">
+          </form>
+        </div> 
   </div>
   </div>
   <!-- Bootstrap JS -->
